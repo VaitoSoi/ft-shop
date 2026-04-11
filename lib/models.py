@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from enum import Enum as PyEnum
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import uuid4
 
 from pydantic import BaseModel as PyBaseModel, ConfigDict
@@ -23,7 +23,9 @@ class PydanticJSON(TypeDecorator):
         # Python -> Database (Saving)
         if value is None:
             return None
-        return value.model_dump(mode="json")
+        if isinstance(value, SQLModel):
+            return value.model_dump(mode="json")
+        return cast(Any, value)
 
     def process_result_value(self, value: dict | None, dialect) -> PyBaseModel | None:
         # Database -> Python (Loading)
@@ -122,7 +124,7 @@ class SlicedSubscription(PyBaseModel):
     events: Literal["all"] | list[str]
     headers: dict[str, Any] | None
     endpoint: str
-    response_type: SubscriptionType
+    type: SubscriptionType
 
 
 class Token(BaseModel, table=True):
