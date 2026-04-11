@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 dependencies = [
     "aiohttp[speedups]>=3.13.5",
     "aiosqlite>=0.22.1",
+    "apscheduler>=3.11.2",
     "argon2-cffi>=25.1.0",
     "fastapi[standard-no-fastapi-cloud-cli]>=0.135.3",
     "python-dotenv>=1.2.2",
