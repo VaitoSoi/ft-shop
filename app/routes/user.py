@@ -11,9 +11,9 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, delete, select
 
-from lib.db import get_session
-from lib.dependency import auth
-from lib.models import Token, User
+from app.lib.db import get_session
+from app.lib.dependency import auth
+from app.lib.models import Token, User
 
 router = APIRouter(prefix="/user", tags=["user"])
 pass_hash = PasswordHasher()

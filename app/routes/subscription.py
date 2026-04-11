@@ -6,9 +6,9 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import and_, delete, or_, select
 
-from lib.db import get_session
-from lib.dependency import auth
-from lib.models import SlicedSubscription, Subscription, SubscriptionType, User
+from app.lib.db import get_session
+from app.lib.dependency import auth
+from app.lib.models import SlicedSubscription, Subscription, SubscriptionType, User
 
 router = APIRouter(prefix="/sub", tags=["pubsub"])
 

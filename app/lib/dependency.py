@@ -6,8 +6,8 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from lib.db import get_session
-from lib.models import Token
+from app.lib.db import get_session
+from app.lib.models import Token
 
 
 async def auth(

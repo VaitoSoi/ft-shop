@@ -7,7 +7,7 @@ from pydantic import BaseModel as PyBaseModel, ConfigDict
 from sqlalchemy import JSON, Column, Enum as SQLEnum, TypeDecorator
 from sqlmodel import Field, Relationship, SQLModel
 
-from lib.env import EXPIRE_TIME
+from app.lib.env import EXPIRE_TIME
 
 
 class PydanticJSON(TypeDecorator):

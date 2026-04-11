@@ -2,9 +2,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from lib.cron import scheduler
-from lib.db import init
-from routes import subscription_router, user_router
+from app.lib.cron import scheduler
+from app.lib.db import init
+from app.routes import subscription_router, user_router
 
 
 @asynccontextmanager
@@ -13,6 +13,7 @@ async def lifespan(app: FastAPI):
     scheduler.start()
     yield
     scheduler.shutdown()
+
 
 app = FastAPI(
     title="Flavortownn Store PubSub API",

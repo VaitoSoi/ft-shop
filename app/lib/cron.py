@@ -8,8 +8,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select
 
-from lib.env import BASE_URL, INTERVAL, TOKEN
-from lib.utils import diff, flatten_obj
+from app.lib.env import BASE_URL, INTERVAL, TOKEN
+from app.lib.utils import diff, flatten_obj
 
 from .db import session_maker
 from .models import (
