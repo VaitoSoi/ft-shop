@@ -14,6 +14,7 @@ def require_env(var: str):
 
 DB_URL = require_env("DB_URL")
 TOKEN = require_env("TOKEN")
+BASE_URL = getenv("BASE_URL", "https://flavortown.hackclub.com/api/v1/")
 INTERVAL = int(getenv("INTERVAL", "5"))
 EXPIRE_TIME = getenv("EXPIRE_TIME")
 EXPIRE_TIME = ms(EXPIRE_TIME or "7 days") # pyright: ignore[reportCallIssue]
