@@ -409,7 +409,7 @@ wheels = [
 ]
 
 [[package]]
-name = "ft-shop"
+name = "ft-shop-wh"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

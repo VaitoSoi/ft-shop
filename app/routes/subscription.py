@@ -10,7 +10,7 @@ from app.lib.db import get_session
 from app.lib.dependency import auth
 from app.lib.models import SlicedSubscription, Subscription, SubscriptionType, User
 
-router = APIRouter(prefix="/sub", tags=["pubsub"])
+router = APIRouter(prefix="/sub", tags=["wehbook"])
 
 
 @router.get(
