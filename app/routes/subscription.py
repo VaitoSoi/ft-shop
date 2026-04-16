@@ -1,7 +1,7 @@
 from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import and_, delete, or_, select
@@ -189,10 +189,10 @@ async def new_sub(
 
 
 class UpdateSubscription(BaseModel):
-    events: Literal["all"] | list[str] | None
-    headers: dict[str, Any] | None
-    endpoint: str | None
-    type: SubscriptionType | None
+    events: Literal["all"] | list[str] | None = Field(default=None)
+    headers: dict[str, Any] | None = Field(default=None)
+    endpoint: str | None = Field(default=None)
+    type: SubscriptionType | None = Field(default=None)
 
 
 @router.put("/", summary="Update subscription", operation_id="update_sub")
