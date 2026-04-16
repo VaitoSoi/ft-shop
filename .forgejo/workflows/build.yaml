@@ -22,7 +22,7 @@ jobs:
       test-server:
         image: git.vaito.dev/vaito/ft-test:latest
         ports:
-          - 8080:8080
+          - 8080:8000     
 
     steps:
       - name: Checkout
