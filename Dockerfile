@@ -12,6 +12,6 @@ COPY ./ /app
 
 RUN uvx ruff check .
 
-RUN uv sync
+RUN uv sync --locked
 
 CMD ["uv", "run", "uvicorn", "main:app"]
