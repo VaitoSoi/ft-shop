@@ -134,7 +134,6 @@ class Token(BaseModel, table=True):
     user: User = Relationship(sa_relationship_kwargs={"lazy": "selectin"})
 
     token: str
-    revoked: bool = Field(default=False)
     expired_at: datetime = Field(
         default_factory=lambda: datetime.now() + timedelta(milliseconds=EXPIRE_TIME)
     )
