@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import col, delete, select
 
 from app.lib.db import get_session
-from app.lib.dependency import auth
+from app.lib.dependency import auth, get_token
 from app.lib.models import Token, User
 
 router = APIRouter(prefix="/user", tags=["user"])
@@ -22,6 +22,20 @@ pass_hash = PasswordHasher()
 class RequestUser(BaseModel):
     username: str
     password: str
+
+
+class ResponseUser(BaseModel):
+    username: str
+
+
+@router.get(
+    "/",
+    summary="Get current user info",
+    description="The only purpose of this endpoint is to validate your token",
+    operation_id="get_me",
+)
+async def get_me(user: Annotated[User, Depends(auth)]) -> ResponseUser:
+    return ResponseUser(username=user.username)
 
 
 @router.post(
@@ -37,8 +51,13 @@ async def create_user(
     """
     Create user
 
-    Params:
-    - **user** Username and password
+    Body:
+    ```json
+    {
+        "username": "<your username>",
+        "password": "<your password>"
+    }
+    ```
 
     Return:
     ```json
@@ -61,10 +80,12 @@ async def create_user(
 
     return {"message": "ok"}
 
+
 class AuthResponse(BaseModel):
     message: Literal["ok"] = Field(default="ok")
-    scheme: Literal["bearer"] = Field(default="bearer")
+    scheme: Literal["Bearer"] = Field(default="Bearer")
     token: str
+
 
 @router.post(
     "/auth",
@@ -217,4 +238,3 @@ async def delete_user(
     """
     await session.execute(delete(User).where(col(User.id) == user.id))
     await session.commit()
-
