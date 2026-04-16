@@ -120,6 +120,83 @@ async def create_token(
     return AuthResponse(token=token)
 
 
+class UpdateUser(BaseModel):
+    password: str
+
+
+@router.put(
+    "/",
+    summary="Update user",
+    operation_id="update_user",
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def update(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    user: Annotated[User, Depends(auth)],
+    new_user: UpdateUser,
+):
+    """
+    Update current user
+
+    **Note:** Calling this endpoint will delete all token
+
+    Body:
+    ```json
+    {
+        "password": "<new_pass>"
+    }
+    ```
+
+    Return
+    ```json
+    { "message": "ok" }
+    ```
+    """
+    user_obj = (
+        await session.execute(select(User).where(col(User.id) == user.id))
+    ).scalar_one()
+    user_obj.pass_hash = pass_hash.hash(new_user.password)
+    session.add(user_obj)
+
+    # Revoke all token
+    await session.execute(delete(Token).where(col(Token.user_id) == user.id))
+
+    await session.commit()
+    return {"message": "ok"}
+
+
+@router.delete(
+    "/token",
+    summary="Revoke this token",
+    operation_id="revoke_token",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_token(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    token: Annotated[str, Depends(get_token)],
+):
+    """
+    Revoke current token
+
+    Return
+    ```
+    None
+    ```
+    """
+    
+    stm = select(Token).where(Token.token == token)
+    try:
+        token_obj = (await session.execute(stm)).scalar_one()
+    except NoResultFound:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"message": "token not found"},
+        )
+
+    await session.delete(token_obj)
+    await session.commit()
+
+
 @router.delete(
     "/",
     summary="Delete this user",
