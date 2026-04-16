@@ -8,7 +8,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select
 
-from app.lib.env import BASE_URL, INTERVAL, TOKEN
+from app.lib.env import BASE_URL, INTERVAL, NOTIFY_WHEN_EMPTY, TOKEN
 from app.lib.utils import diff, flatten_obj
 
 from .db import session_maker
@@ -43,28 +43,41 @@ async def job():
 
 
 async def job_():
-    # Fetch all subscription
-    sub_dicts: dict[str, Subscription] = {}
-    async with session_maker() as session:
-        subscriptions = (await session.execute(select(Subscription))).scalars().all()
-        sub_dicts = {sub.id: sub for sub in subscriptions}
+    global old_data
+    
 
     # Get new data
     new_data: list[ShopItem] = []
     async with ClientSession(
         base_url=BASE_URL, headers={"Authorization": f"Bearer {TOKEN}"}
     ) as session:
-        async with session.get("/store") as response:
-            global old_data
-            ft_data: list[ShopItem] = [
-                ShopItem.model_validate(item) for item in await response.json()
-            ]
-            if len(old_data) == 0:
-                for val in ft_data:
-                    old_data[val.id] = val
-                return
+        async with session.get("store") as response:
+            try:
+                ft_data: list[ShopItem] = [
+                    ShopItem.model_validate(item) for item in await response.json()
+                ]
+                if len(old_data) == 0:
+                    for val in ft_data:
+                        old_data[val.id] = val
 
-            new_data = ft_data
+                    if NOTIFY_WHEN_EMPTY:
+                        await _notify_changed_item({}, ft_data)
+                    
+                    return    
+
+                new_data = ft_data
+
+            except ContentTypeError as error:
+                raise ValueError(f"expect json, got '{await response.text()}'") from error
+
+    await _notify_changed_item(old_data, new_data)
+
+async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
+    # Fetch all subscription
+    sub_dicts: dict[str, Subscription] = {}
+    async with session_maker() as session:
+        subscriptions = (await session.execute(select(Subscription))).scalars().all()
+        sub_dicts = {sub.id: sub for sub in subscriptions}
 
     # Compute changes
     touched: list[int] = []
@@ -86,6 +99,7 @@ async def job_():
             old_val = old_data[new_val.id]
             changes = diff(old_val, new_val)
             if not len(changes):
+                touched.append(new_val.id)
                 continue
 
             item_changes = Changes(old=old_val, new=new_val, changes=changes)
@@ -158,6 +172,7 @@ async def job_():
     for key in remove_keys:
         del old_data[key]
 
+    # Notify user
     for sub_id, datas in notifications.items():
         sub = sub_dicts[sub_id]
         async with ClientSession(sub.endpoint) as session:
@@ -175,6 +190,7 @@ async def job_():
                 )
                 submit_to_db.append(response_obj)
 
+    # Add everything to DB
     async with session_maker() as session:
         session.add_all(submit_to_db)
         await session.commit()
