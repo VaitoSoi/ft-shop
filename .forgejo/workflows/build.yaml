@@ -1,0 +1,84 @@
+on: ["push"]
+
+jobs:
+  lint:
+    runs-on: docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Lint
+        run: uvx ruff check .
+
+  test:
+    runs-on: docker
+    
+    needs: lint
+
+    services:
+      test-server:
+        image: git.vaito.dev/vaito/ft-test:latest
+        ports:
+          - 8080:8080
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install package
+        run: uv sync --group test --locked
+
+      - name: test
+        run: |
+          export BASE_URL=http://test-server:8080/
+          uv run pytest -vv -x tests/
+
+  build:
+    runs-on: docker
+
+    needs: test
+    
+    env:
+      # Forgejo registry
+      REGISTRY: git.internal.vaito.dev
+      IMAGE_NAME: git.internal.vaito.dev/${{ github.repository }} # owner/repo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Forgejo container registry
+        env:
+          USERNAME: ${{ secrets.FORGEJO_USERNAME }}
+          PASSWORD: ${{ secrets.FORGEJO_TOKEN }}
+        run: |
+          echo "$PASSWORD" | docker login "${REGISTRY}" -u "${USERNAME}" --password-stdin
+
+      - name: Build buildx driver
+        run: |
+          set -eux
+          
+          docker buildx rm -f multi || true
+          docker buildx create \
+            --name multi \
+            --driver remote $AMD_BUILD_REMOTE \
+            --use \
+            --bootstrap
+          docker buildx create \
+            --name multi \
+            --append $ARM_BUILD_REMOTE
+
+      - name: Build image
+        run: |
+          docker buildx build \
+            --builder multi \
+            --platform linux/amd64,linux/arm64 \
+            -t "${IMAGE_NAME}:${{ forgejo.run_number }}" \
+            -t "${IMAGE_NAME}:latest" \
+            --push .
