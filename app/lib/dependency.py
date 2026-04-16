@@ -10,8 +10,7 @@ from app.lib.db import get_session
 from app.lib.models import Token
 
 
-async def auth(
-    session: Annotated[AsyncSession, Depends(get_session)],
+def get_token(
     Authorization: Annotated[str, Header()],
 ):
     scheme, token = Authorization.split(" ")
@@ -22,6 +21,12 @@ async def auth(
             detail={"message": "authorization scheme must be Bearer"},
         )
 
+    return token
+
+async def auth(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    token: Annotated[str, Depends(get_token)],
+):
     stm = select(Token).where(Token.token == token)
     try:
         token_obj =(await session.execute(stm)).scalar_one()
@@ -29,12 +34,6 @@ async def auth(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={"message": "token not found"},
-        )
-    
-    if token_obj.revoked:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"message": "token revoked"},
         )
 
     if token_obj.expired_at < datetime.now():
