@@ -1,20 +1,36 @@
-from os import getenv
+import os
 
 import python_ms as ms
 from dotenv import load_dotenv
 
-load_dotenv()
+
+def is_trueish(val) -> bool:
+    return val in ["true", "1", "yes"]
+
+
+OVERRIDE = os.getenv("OVERIDE", "false") in ["true", "1", "yes"]
+
+ENV = os.getenv("ENV", "dev").lower()
+if ENV == "test":
+    os.environ["DB_URL"] = "sqlite+aiosqlite://"
+    os.environ["TOKEN"] = "empty_token"
+    os.environ["NOTIFY_WHEN_EMPTY"] = "true"
+
+elif ENV == "dev":
+    load_dotenv(override=OVERRIDE)
 
 
 def require_env(var: str):
-    val = getenv(var)
+    val = os.getenv(var)
     if val is None:
         raise RuntimeError(f"env {var} is required")
     return val
 
+
 DB_URL = require_env("DB_URL")
 TOKEN = require_env("TOKEN")
-BASE_URL = getenv("BASE_URL", "https://flavortown.hackclub.com/api/v1/")
-INTERVAL = int(getenv("INTERVAL", "5"))
-EXPIRE_TIME = getenv("EXPIRE_TIME")
-EXPIRE_TIME = ms(EXPIRE_TIME or "7 days") # pyright: ignore[reportCallIssue]
+BASE_URL = os.getenv("BASE_URL", "https://flavortown.hackclub.com/api/v1/")
+INTERVAL = int(os.getenv("INTERVAL", "10"))
+EXPIRE_TIME = os.getenv("EXPIRE_TIME")
+NOTIFY_WHEN_EMPTY = is_trueish(os.getenv("NOTIFY_WHEN_EMPTY", "true").lower())
+EXPIRE_TIME = ms(EXPIRE_TIME or "7 days")  # pyright: ignore[reportCallIssue]
