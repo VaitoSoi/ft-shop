@@ -22,7 +22,7 @@ jobs:
       test-server:
         image: git.vaito.dev/vaito/ft-test:latest
         ports:
-          - 8080:8000     
+          - 8000:8000     
 
     steps:
       - name: Checkout
@@ -36,7 +36,7 @@ jobs:
 
       - name: Run tests
         run: |
-          export BASE_URL=http://test-server:8080/
+          export BASE_URL=http://test-server:8000/
           uv run pytest -vv -x tests/
 
   build:
