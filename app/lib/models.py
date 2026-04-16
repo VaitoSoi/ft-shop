@@ -43,11 +43,11 @@ class ShopItem(PyBaseModel):
     stock: int  | None
     type: str
     show_in_carousel: bool
-    accessory_tag: str
-    agh_contents: str
+    accessory_tag: str | None
+    agh_contents: Any
     attached_shop_item_ids: list
     buyable_by_self: bool
-    long_description: str
+    long_description: str | None
     max_qty: int  | None
     one_per_person_ever: bool
     sale_percentage: int | None
