@@ -34,7 +34,7 @@ jobs:
       - name: Install package
         run: uv sync --group test --locked
 
-      - name: test
+      - name: Run tests
         run: |
           export BASE_URL=http://test-server:8080/
           uv run pytest -vv -x tests/
