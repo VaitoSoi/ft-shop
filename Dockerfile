@@ -4,6 +4,7 @@ WORKDIR /app
 VOLUME /app/file
 EXPOSE 8000
 
+ENV ENV=prod
 ENV UVICORN_HOST=0.0.0.0
 ENV UVICORN_PORT=8000
 ENV DB_URL=sqlite+aiosqlite:///file/db.sqlite
