@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:debian-slim
+FROM ghcr.io/astral-sh/uv:trixie
 
 WORKDIR /app
 VOLUME /app/file
