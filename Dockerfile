@@ -15,4 +15,4 @@ RUN uvx ruff check .
 
 RUN uv sync --locked
 
-CMD ["uv", "run", "uvicorn", "main:app"]
+CMD ["uv", "run", "uvicorn", "app.main:app"]
