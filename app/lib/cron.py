@@ -8,7 +8,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select
 
-from app.lib.env import BASE_URL, INTERVAL, NOTIFY_WHEN_EMPTY, TOKEN
+from app.lib.env import BASE_URL, INTERVAL, NOTIFY_WHEN_EMPTY, TIMEOUT, TOKEN
 from app.lib.utils import diff, flatten_obj
 
 from .db import session_maker
@@ -44,14 +44,13 @@ async def job():
 
 async def job_():
     global old_data
-    
 
     # Get new data
     new_data: list[ShopItem] = []
     async with ClientSession(
         base_url=BASE_URL, headers={"Authorization": f"Bearer {TOKEN}"}
     ) as session:
-        async with session.get("store", timeout=ClientTimeout(total=10)) as response:
+        async with session.get("store", timeout=ClientTimeout(total=TIMEOUT)) as response:
             try:
                 ft_data: list[ShopItem] = [
                     ShopItem.model_validate(item) for item in await response.json()
@@ -178,7 +177,10 @@ async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
         sub = sub_dicts[sub_id]
         async with ClientSession(sub.endpoint) as session:
             async with session.post(
-                url="", headers=sub.headers, json=datas, timeout=ClientTimeout(total=10)
+                url="",
+                headers=sub.headers,
+                json=datas,
+                timeout=ClientTimeout(total=TIMEOUT),
             ) as response:
                 res_data = None
                 try:

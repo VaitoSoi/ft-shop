@@ -32,5 +32,6 @@ TOKEN = require_env("TOKEN")
 BASE_URL = os.getenv("BASE_URL", "https://flavortown.hackclub.com/api/v1/")
 NOTIFY_WHEN_EMPTY = is_trueish(os.getenv("NOTIFY_WHEN_EMPTY", "true").lower())
 INTERVAL = int(os.getenv("INTERVAL", "20"))
+TIMEOUT = int(os.getenv("TIMEOUT", "10"))
 EXPIRE_TIME = os.getenv("EXPIRE_TIME")
 EXPIRE_TIME = ms(EXPIRE_TIME or "7 days")  # pyright: ignore[reportCallIssue]
