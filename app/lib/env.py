@@ -31,6 +31,6 @@ DB_URL = require_env("DB_URL")
 TOKEN = require_env("TOKEN")
 BASE_URL = os.getenv("BASE_URL", "https://flavortown.hackclub.com/api/v1/")
 NOTIFY_WHEN_EMPTY = is_trueish(os.getenv("NOTIFY_WHEN_EMPTY", "true").lower())
-INTERVAL = int(os.getenv("INTERVAL", "10"))
+INTERVAL = int(os.getenv("INTERVAL", "20"))
 EXPIRE_TIME = os.getenv("EXPIRE_TIME")
 EXPIRE_TIME = ms(EXPIRE_TIME or "7 days")  # pyright: ignore[reportCallIssue]
