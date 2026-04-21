@@ -32,7 +32,7 @@ old_data: dict[int, ShopItem] = {}
 scheduler = AsyncIOScheduler()
 
 
-@scheduler.scheduled_job(IntervalTrigger(seconds=INTERVAL))
+@scheduler.scheduled_job(IntervalTrigger(seconds=INTERVAL), max_instances=3)
 async def job():
     try:
         await job_()
