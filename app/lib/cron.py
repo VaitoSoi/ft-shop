@@ -2,7 +2,7 @@ from asyncio import CancelledError
 from operator import attrgetter
 from typing import Any
 
-from aiohttp import ClientSession, ContentTypeError
+from aiohttp import ClientSession, ClientTimeout, ContentTypeError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
@@ -51,7 +51,7 @@ async def job_():
     async with ClientSession(
         base_url=BASE_URL, headers={"Authorization": f"Bearer {TOKEN}"}
     ) as session:
-        async with session.get("store") as response:
+        async with session.get("store", timeout=ClientTimeout(total=10)) as response:
             try:
                 ft_data: list[ShopItem] = [
                     ShopItem.model_validate(item) for item in await response.json()
@@ -62,8 +62,8 @@ async def job_():
 
                     if NOTIFY_WHEN_EMPTY:
                         await _notify_changed_item({}, ft_data)
-                    
-                    return    
+
+                    return
 
                 new_data = ft_data
 
@@ -71,6 +71,7 @@ async def job_():
                 raise ValueError(f"expect json, got '{await response.text()}'") from error
 
     await _notify_changed_item(old_data, new_data)
+
 
 async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
     # Fetch all subscription
@@ -121,7 +122,7 @@ async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
             if sub.type == SubscriptionType.full:
                 send_data = item_changes.model_dump(by_alias=True)
                 notifications.setdefault(sub.id, []).append(send_data)
-            
+
             elif sub.type == SubscriptionType.compact:
                 send_data = notifications.setdefault(sub.id, {})
                 for path, change in compact_changes.items():
@@ -176,7 +177,9 @@ async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
     for sub_id, datas in notifications.items():
         sub = sub_dicts[sub_id]
         async with ClientSession(sub.endpoint) as session:
-            async with session.post(url="", headers=sub.headers, json=datas) as response:
+            async with session.post(
+                url="", headers=sub.headers, json=datas, timeout=ClientTimeout(total=10)
+            ) as response:
                 res_data = None
                 try:
                     res_data = await response.json()
