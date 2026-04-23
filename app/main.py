@@ -24,7 +24,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Flavortown Store Webhook API",
     lifespan=lifespan,
-    license_info={"name": "MIT", "url": "https://opensource.org/license/mit"},
+    license_info={"name": "MIT", "url": "https://git.vaito.dev/vaito/ft-shop/src/branch/main/LICENSE"},
+    description="A simple Webhook API that follows the changes of Flavortown shop"
 )
 app.include_router(subscription_router)
 app.include_router(user_router)
