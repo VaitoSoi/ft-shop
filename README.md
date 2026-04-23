@@ -138,12 +138,14 @@ fastapi run app/main.py
 
 | Name              | Accept value          | Default value | Note     |
 |-------------------|-----------------------|---------------|----------|
-| DB_URL            | Any DB connection URL with coressponding async driver | None          | Required <br> Should be accepted by [SQLAlchemy](https://pypi.org/project/SQLAlchemy/) |
-| TOKEN             | Flavortown API Token  | None          | Required |
+| DB_URL            | Any DB connection URL with coressponding async driver | None          | **Required** <br> Should be accepted by [SQLAlchemy](https://pypi.org/project/SQLAlchemy/) |
+| TOKEN             | Flavortown API Token  | None          | **Required** |
 | BASE_URL          | Flavotown API URL     | https://flavortown.hackclub.com/api/v1/ | |
 | NOTIFY_WHEN_EMPTY | boolean               | false         | Enable this will let this app send empty `old` fields when startup|
 | INTERVAL          | int                   | 10            | Data crawling interval | 
 | EXPIRE_TIME       | timedelta             | 7 days        | User token default expire time <br> Should be accepted by [ms library](https://pypi.org/project/python_ms/) |
+| TIMEOUT           | int                   | 10            | Timeout for each request (include fetch data from FT and webhook) |
+| MAX_INSTANCES     | int                   | 1             | Max APScheduler instance |
 
 ## IV. Components:
 
