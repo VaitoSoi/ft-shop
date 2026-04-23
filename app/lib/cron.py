@@ -35,7 +35,6 @@ class Changes(BaseModel):
 
 
 old_data: dict[int, ShopItem] = {}
-
 scheduler = AsyncIOScheduler()
 lock = Lock()
 
@@ -183,29 +182,37 @@ async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
         del old_data[key]
 
     # Notify user
+    tasks: list[Task] = []
     for sub_id, datas in notifications.items():
         sub = sub_dicts[sub_id]
-        async with ClientSession(sub.endpoint) as session:
-            async with session.post(
-                url="",
-                headers=sub.headers,
-                json=datas,
-                timeout=ClientTimeout(total=TIMEOUT),
-            ) as response:
-                res_data = None
-                try:
-                    res_data = await response.json()
-                except ContentTypeError:
-                    res_data = await response.text()
-                response_obj = SubscriptionResponse(
-                    subscription_id=sub.id,
-                    status_code=response.status,
-                    header=dict(response.headers),
-                    data=res_data,
-                )
-                submit_to_db.append(response_obj)
+        task = create_task(_send_notification(sub, datas))
+        tasks.append(task)
+
+    await gather(*tasks)
 
     # Add everything to DB
     async with session_maker() as session:
         session.add_all(submit_to_db)
         await session.commit()
+
+
+async def _send_notification(sub: Subscription, datas: Any):
+    async with ClientSession(sub.endpoint) as session:
+        async with session.post(
+            url="",
+            headers=sub.headers,
+            json=datas,
+            timeout=ClientTimeout(total=TIMEOUT),
+        ) as response:
+            res_data = None
+            try:
+                res_data = await response.json()
+            except ContentTypeError:
+                res_data = await response.text()
+            response_obj = SubscriptionResponse(
+                subscription_id=sub.id,
+                status_code=response.status,
+                header=dict(response.headers),
+                data=res_data,
+            )
+            return response_obj
