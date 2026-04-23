@@ -1,4 +1,4 @@
-from asyncio import CancelledError
+from asyncio import CancelledError, Lock, Task, create_task, gather
 from operator import attrgetter
 from typing import Any
 
@@ -8,7 +8,14 @@ from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select
 
-from app.lib.env import BASE_URL, INTERVAL, NOTIFY_WHEN_EMPTY, TIMEOUT, TOKEN
+from app.lib.env import (
+    BASE_URL,
+    INTERVAL,
+    MAX_INSTANCES,
+    NOTIFY_WHEN_EMPTY,
+    TIMEOUT,
+    TOKEN,
+)
 from app.lib.utils import diff, flatten_obj
 
 from .db import session_maker
@@ -30,12 +37,15 @@ class Changes(BaseModel):
 old_data: dict[int, ShopItem] = {}
 
 scheduler = AsyncIOScheduler()
+lock = Lock()
 
 
 @scheduler.scheduled_job(IntervalTrigger(seconds=INTERVAL), max_instances=MAX_INSTANCES)
 async def job():
     try:
+        await lock.acquire()
         await job_()
+        lock.release()
     except KeyboardInterrupt, CancelledError:
         return
     except Exception as e:
