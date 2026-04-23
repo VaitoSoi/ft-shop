@@ -22,7 +22,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Flavortownn Store Webhook API",
+    title="Flavortown Store Webhook API",
     lifespan=lifespan,
     license_info={"name": "MIT", "url": "https://opensource.org/license/mit"},
 )
