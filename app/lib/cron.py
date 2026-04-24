@@ -8,7 +8,8 @@ from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select
 
-from app.lib.env import (
+from .db import session_maker
+from .env import (
     BASE_URL,
     INTERVAL,
     MAX_INSTANCES,
@@ -16,9 +17,7 @@ from app.lib.env import (
     TIMEOUT,
     TOKEN,
 )
-from app.lib.utils import diff, flatten_obj
-
-from .db import session_maker
+from .logger import logger
 from .models import (
     Changes as DBChanges,
     ShopItem,
@@ -26,6 +25,7 @@ from .models import (
     SubscriptionResponse,
     SubscriptionType,
 )
+from .utils import diff, flatten_obj
 
 
 class Changes(BaseModel):
