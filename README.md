@@ -146,6 +146,8 @@ fastapi run app/main.py
 | EXPIRE_TIME       | timedelta             | 7 days        | User token default expire time <br> Should be accepted by [ms library](https://pypi.org/project/python_ms/) |
 | TIMEOUT           | int                   | 10            | Timeout for each request (include fetch data from FT and webhook) |
 | MAX_INSTANCES     | int                   | 1             | Max APScheduler instance |
+| LOGGING_FILE      | 'default' or 'date'   | none          | 'default' use file, 'date' use date as file name, <other> dont use |
+| LOGGING_LEVEL     | Python Logging level  | INFO          |           |
 
 ## IV. Components:
 
