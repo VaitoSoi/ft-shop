@@ -189,7 +189,7 @@ async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
         task = create_task(_send_notification(sub, datas))
         tasks.append(task)
 
-    await gather(*tasks)
+    await gather(*tasks, return_exceptions=True)
 
     # Add everything to DB
     async with session_maker() as session:
