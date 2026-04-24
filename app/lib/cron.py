@@ -42,14 +42,13 @@ lock = Lock()
 
 @scheduler.scheduled_job(IntervalTrigger(seconds=INTERVAL), max_instances=MAX_INSTANCES)
 async def job():
-    try:
-        await lock.acquire()
-        await job_()
-        lock.release()
-    except KeyboardInterrupt, CancelledError:
-        return
-    except Exception as e:
-        print(e)
+    async with lock:
+        try:
+            await job_()
+        except KeyboardInterrupt, CancelledError:
+            return
+        except Exception as e:
+            logger.exception(e)
 
 
 async def job_():
