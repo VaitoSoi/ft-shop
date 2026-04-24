@@ -75,7 +75,7 @@ def _flatten_obj(obj: dict, sep: str = ".", current_path: str = "") -> dict[str,
             for ind, item in enumerate(value):
                 ind_path = f"{path}{sep}{ind}"
                 if type(item) is dict:
-                    result |= _flatten_obj(item, sep, current_path=f"{ind_path}{sep}{ind}")
+                    result |= _flatten_obj(item, sep, current_path=ind_path)
                 else:
                     result[ind_path] = item
         else:
