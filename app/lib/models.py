@@ -144,7 +144,7 @@ class ResponseStatus(PyEnum):
 
 
 class SubscriptionResponse(BaseModel, table=True):
-    __tablename__ = "responses"  # type: ignore
+    __tablename__ = "responses" # type: ignore
 
     subscription_id: str = Field(foreign_key="subscription.id")
     subscription: Subscription = Relationship()
@@ -160,6 +160,6 @@ class SubscriptionResponse(BaseModel, table=True):
 class Changes(BaseModel, table=True):
     __tablename__ = "changes"  # type: ignore
 
-    old: ShopItem = Field(sa_column=Column(PydanticJSON(ShopItem)))
-    new: ShopItem = Field(sa_column=Column(PydanticJSON(ShopItem)))
+    old: ShopItem | None = Field(sa_column=Column(PydanticJSON(ShopItem)))
+    new: ShopItem | None = Field(sa_column=Column(PydanticJSON(ShopItem)))
     changes: list[str] = Field(sa_column=Column(JSON))
