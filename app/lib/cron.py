@@ -59,24 +59,44 @@ async def job_():
     async with ClientSession(
         base_url=BASE_URL, headers={"Authorization": f"Bearer {TOKEN}"}
     ) as session:
-        async with session.get("store", timeout=ClientTimeout(total=TIMEOUT)) as response:
-            try:
-                ft_data: list[ShopItem] = [
-                    ShopItem.model_validate(item) for item in await response.json()
-                ]
-                if len(old_data) == 0:
-                    for val in ft_data:
-                        old_data[val.id] = val
-
-                    if NOTIFY_WHEN_EMPTY:
-                        await _notify_changed_item({}, ft_data)
-
+        try:
+            async with session.get(
+                "store", timeout=ClientTimeout(total=TIMEOUT)
+            ) as response:
+                if response.status != 200:
+                    logger.error(
+                        f"error occurred when fecthing data: expect code 200, got {response.status}"
+                    )
+                    logger.debug(f"data: {await response.text()}")
                     return
 
-                new_data = ft_data
+                try:
+                    ft_data: list[ShopItem] = [
+                        ShopItem.model_validate(item) for item in await response.json()
+                    ]
 
-            except ContentTypeError as error:
-                raise ValueError(f"expect json, got '{await response.text()}'") from error
+                    if not ft_data and len(old_data) > 0:
+                        return
+
+                    if len(old_data) == 0:
+                        for val in ft_data:
+                            old_data[val.id] = val
+
+                        if NOTIFY_WHEN_EMPTY:
+                            await _notify_changed_item({}, ft_data)
+
+                        return
+
+                    new_data = ft_data
+
+                except ContentTypeError:
+                    logger.error(
+                        f"error occurred when fecthing data: expect json, got '{await response.text()}'"
+                    )
+                    return
+
+        except ConnectionTimeoutError:
+            logger.error("error occurred when fecthing data: connection timeout")
 
     await _notify_changed_item(old_data, new_data)
 
