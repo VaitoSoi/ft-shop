@@ -2,7 +2,7 @@ from asyncio import CancelledError, Lock, Task, create_task, gather
 from operator import attrgetter
 from typing import Any
 
-from aiohttp import ClientSession, ClientTimeout, ContentTypeError
+from aiohttp import ClientSession, ClientTimeout, ConnectionTimeoutError, ContentTypeError
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from pydantic import BaseModel
@@ -20,6 +20,7 @@ from .env import (
 from .logger import logger
 from .models import (
     Changes as DBChanges,
+    ResponseStatus,
     ShopItem,
     Subscription,
     SubscriptionResponse,
@@ -198,21 +199,43 @@ async def _notify_changed_item(old_data: dict, new_data: list[ShopItem]):
 
 async def _send_notification(sub: Subscription, datas: Any):
     async with ClientSession(sub.endpoint) as session:
-        async with session.post(
-            url="",
-            headers=sub.headers,
-            json=datas,
-            timeout=ClientTimeout(total=TIMEOUT),
-        ) as response:
-            res_data = None
-            try:
-                res_data = await response.json()
-            except ContentTypeError:
-                res_data = await response.text()
-            response_obj = SubscriptionResponse(
+        try:
+            async with session.post(
+                url="",
+                headers=sub.headers,
+                json=datas,
+                timeout=ClientTimeout(total=TIMEOUT),
+            ) as response:
+                res_data = None
+                try:
+                    res_data = await response.json()
+                except ContentTypeError:
+                    res_data = await response.text()
+                return SubscriptionResponse(
+                    status=ResponseStatus.success,
+                    error=None,
+                    subscription_id=sub.id,
+                    status_code=response.status,
+                    header=dict(response.headers),
+                    data=res_data,
+                )
+        except ConnectionTimeoutError:
+            logger.debug(f"{sub.endpoint} timeout")
+            return SubscriptionResponse(
+                status=ResponseStatus.timeout,
+                error=None,
                 subscription_id=sub.id,
-                status_code=response.status,
-                header=dict(response.headers),
-                data=res_data,
+                status_code=None,
+                header=None,
+                data=None,
             )
-            return response_obj
+        except Exception as error:
+            logger.debug(f"{sub.endpoint} error")
+            return SubscriptionResponse(
+                status=ResponseStatus.error,
+                error=error.__str__(),
+                subscription_id=sub.id,
+                status_code=None,
+                header=None,
+                data=None,
+            )
