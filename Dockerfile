@@ -2,6 +2,7 @@ FROM ghcr.io/astral-sh/uv:trixie
 
 WORKDIR /app
 VOLUME /app/file
+VOLUME /app/logs
 EXPOSE 8000
 
 ENV ENV=prod
