@@ -34,6 +34,6 @@ NOTIFY_WHEN_EMPTY = is_trueish(os.getenv("NOTIFY_WHEN_EMPTY", "true").lower())
 INTERVAL = int(os.getenv("INTERVAL", "30"))
 TIMEOUT = int(os.getenv("TIMEOUT", "10"))
 MAX_INSTANCES = int(os.getenv("MAX_INSTANCES", "1"))
-LOGGING_FILE = os.getenv("LOGGING_FILE", "default") # 'default' use file, 'date' use date as file name, <other> dont use
+LOGGING_FILE = os.getenv("LOGGING_FILE", "none") # 'default' use file, 'date' use date as file name, <other> dont use
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG").upper()
 EXPIRE_TIME = ms(os.getenv("EXPIRE_TIME", "7 days")) # type: ignore
