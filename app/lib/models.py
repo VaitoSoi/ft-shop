@@ -136,15 +136,25 @@ class Token(BaseModel, table=True):
         default_factory=lambda: datetime.now() + timedelta(milliseconds=EXPIRE_TIME)
     )
 
+
+class ResponseStatus(PyEnum):
+    success = "success"
+    timeout = "timeout"
+    error = "error"
+
+
 class SubscriptionResponse(BaseModel, table=True):
     __tablename__ = "responses" # type: ignore
 
     subscription_id: str = Field(foreign_key="subscription.id")
     subscription: Subscription = Relationship()
 
-    status_code: int
-    header: dict = Field(sa_column=Column(JSON))
-    data: str | dict = Field(sa_column=Column(JSON))
+    status: ResponseStatus = Field(sa_column=Column(SQLEnum(ResponseStatus)))
+    error: str | dict | None = Field(sa_column=Column(JSON))
+
+    status_code: int | None
+    header: dict | None = Field(sa_column=Column(JSON))
+    data: str | dict | None = Field(sa_column=Column(JSON))
 
 
 class Changes(BaseModel, table=True):
