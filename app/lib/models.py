@@ -40,7 +40,7 @@ class ShopItem(PyBaseModel):
     description: str
     old_prices: list
     limited: bool
-    stock: int  | None
+    stock: int | None
     type: str
     show_in_carousel: bool
     accessory_tag: str | None
@@ -48,7 +48,7 @@ class ShopItem(PyBaseModel):
     attached_shop_item_ids: list
     buyable_by_self: bool
     long_description: str | None
-    max_qty: int  | None
+    max_qty: int | None
     one_per_person_ever: bool
     sale_percentage: int | None
     requires_achievement: list
@@ -113,9 +113,7 @@ class Subscription(BaseModel, table=True):
 
     headers: dict[str, Any] | None = Field(default=None, sa_column=Column(JSON))
     endpoint: str
-    type: SubscriptionType = Field(
-        sa_column=Column(SQLEnum(SubscriptionType))
-    )
+    type: SubscriptionType = Field(sa_column=Column(SQLEnum(SubscriptionType)))
 
 
 class SlicedSubscription(PyBaseModel):
