@@ -14,7 +14,7 @@ async def lifespan(app: FastAPI):
     if ENV != "test":
         await init()
         scheduler.start()
-    
+
     yield
 
     if scheduler.state != STATE_STOPPED:
@@ -24,8 +24,12 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Flavortown Store Webhook API",
     lifespan=lifespan,
-    license_info={"name": "MIT", "url": "https://git.vaito.dev/vaito/ft-shop/src/branch/main/LICENSE"},
-    description="A simple Webhook API that follows the changes of Flavortown shop"
+    license_info={
+        "name": "MIT",
+        "url": "https://git.vaito.dev/vaito/ft-shop/src/branch/main/LICENSE",
+    },
+    description="A simple Webhook API that follows the changes of Flavortown shop\n"
+    + "API Playground: https://www.postman.com/vaitosoi/ft-shop-webhook-api",
 )
 app.include_router(subscription_router)
 app.include_router(user_router)

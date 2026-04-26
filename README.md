@@ -5,6 +5,7 @@ A simple Webhook API that follows Flavortown store changes.
 - Service that follow the real FT store changes: https://ft-shop.vaito.dev/docs#/
 - Service that follow the emulated FT store changes: https://ft-test.vaito.dev/docs#/
 - FT store emulator: https://ft-api.vaito.dev/docs#/
+- API Playground: https://www.postman.com/vaitosoi/ft-shop-webhook-api
 
 ## I. Introduction
 This is a simple webhook API that notify you when an item is:
