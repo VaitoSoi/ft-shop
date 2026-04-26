@@ -5,7 +5,7 @@ A simple Webhook API that follows Flavortown store changes.
 - Service that follow the real FT store changes: https://ft-shop.vaito.dev/docs#/
 - Service that follow the emulated FT store changes: https://ft-test.vaito.dev/docs#/
 - FT store emulator: https://ft-api.vaito.dev/docs#/
-- API Playground: https://www.postman.com/vaitosoi/ft-shop-webhook-api
+- API Playground: https://www.postman.com/vaitosoi/ft-shop-webhook-api ([see more](#3-use-postman))
 
 ## I. Introduction
 This is a simple webhook API that notify you when an item is:
@@ -93,7 +93,7 @@ There are two subscription modes:
 
 When this app notice changes, it will make a POST request to registered endpoint to notify you.
 
-## II. Setup
+## II. Use this project
 
 ### 1. Use Docker
 
@@ -134,6 +134,14 @@ And run this app:
 ```bash
 fastapi run app/main.py
 ```
+
+### 3. Use Postman:
+
+Access Postman collections at: https://www.postman.com/vaitosoi/ft-shop-webhook-api
+
+Create user at [Create User request](https://www.postman.com/vaitosoi/ft-shop-webhook-api/request/ygrvfok/users)
+
+Grab user token at [Create Token](https://www.postman.com/vaitosoi/ft-shop-webhook-api/request/6y4ly7m/create-new-token)
 
 ## III. Env
 
