@@ -147,7 +147,7 @@ Grab user token at [Create Token](https://www.postman.com/vaitosoi/ft-shop-webho
 
 | Name              | Accept value          | Default value | Note     |
 |-------------------|-----------------------|---------------|----------|
-| DB_URL            | Any DB connection URL with coressponding async driver | None          | **Required** <br> Should be accepted by [SQLAlchemy](https://pypi.org/project/SQLAlchemy/) |
+| DB_URL            | Any DB connection URL with corresponding async driver | None          | **Required** <br> Should be accepted by [SQLAlchemy](https://pypi.org/project/SQLAlchemy/) |
 | TOKEN             | Flavortown API Token  | None          | **Required** |
 | BASE_URL          | Flavotown API URL     | https://flavortown.hackclub.com/api/v1/ | |
 | NOTIFY_WHEN_EMPTY | boolean               | false         | Enable this will let this app send empty `old` fields when startup|
